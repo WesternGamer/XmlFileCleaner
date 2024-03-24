@@ -1,5 +1,6 @@
 ﻿using System.Xml;
 using System.Text;
+using System.Security.Cryptography;
 
 namespace XmlFileCleaner
 {
@@ -18,14 +19,19 @@ namespace XmlFileCleaner
                     File.WriteAllText(arg, modifiedXmlContent);
 
                     Console.WriteLine("Comments removed and spaces replaced successfully.");
+                    Console.WriteLine($"For: {arg}");
+                    Console.WriteLine($"SHA256 Checksum: {SHA256CheckSum(arg)}");
+                    Console.WriteLine("");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("An error occurred: " + ex.Message);
+                    Console.WriteLine($"An error occurred when parsing: {arg}");
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("");
                 }
             }
 
-
+            Console.ReadLine();
         }
 
         static string RemoveCommentsAndSpaces(string xmlContent)
@@ -76,6 +82,17 @@ namespace XmlFileCleaner
             }
 
             return sw.ToString();
+        }
+
+        public static string SHA256CheckSum(string filePath)
+        {
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                using (FileStream fileStream = File.OpenRead(filePath))
+                {
+                    return BitConverter.ToString(sha256.ComputeHash(fileStream)).Replace("-", "");
+                }
+            }
         }
     }
 }
